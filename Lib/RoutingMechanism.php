@@ -5,6 +5,8 @@ require_once(dirname(__FILE__)."/Interfaces/IURLParser.php");
 require_once(dirname(__FILE__)."/../Config/RegexContract.php");
 require_once(dirname(__FILE__)."\DI\DIContract.php");
 require_once(dirname(__FILE__)."\..\Config\RequestTypesConfig.php");
+require_once(dirname(__FILE__)."\ExceptionHandlers\RouteNotFoundException.php");
+
 
 
 
@@ -166,34 +168,41 @@ class RoutingMechanism implements IRoutingMechanism {
                 }
             }
         }
+        // Make it global to be reused
         return $urlConfig;
         
         
     }
-    public function MatchRoute() {
+    public function MatchRoute($appEnvironment) {
          $parsedURL = $this ->_urlParser->parseUrl($this->__request);
          $controller = $parsedURL[0];
          $method = $parsedURL[1];         
 
+         /*
+          * Adding new routes with this if checks
+          */
          if ($this->MatchQuery($this->__request, "/Home/Index/{id}/{test?}", null, RequestTypesConfig::__GET)) { 
             $routeConfig = $this->MatchQuery($this->__request, "/Home/Index/{id}/{test?}", null, $this->__queryType);
-            //$controllerRepository = DIContract::getInstance()->getInjection("IControllerRepository");
-            //$controller = $controllerRepository->returnController($routeConfig['Controller']);
-            //$controller->createView();
             return $routeConfig;
-            /* 
-             * Normally you have one controller for a view
-             * That means, that you do not really need to inject one, because you do not have two or more possibilities
-             * If you are a fan of "inject everething" instead of using a repository you can directly inject a controller
-             * You need only to create a special interface for it
-             * With more controllers it is getting a liitle difficult to maintain all the required files, so you can create 
-             * a special file wich includes all of them and then add it to the DIContainer class
-             *              
-             */
-             //return $this->MatchQuery($this->__request, "/Home/Index/{id?}/{test?}", null);
-
          }
-         //$this->__request == "Home/Index/id?/test?") 
+         
+         /*
+          * Default behavior after no matching route
+          */
+         else { 
+             // For DEV throw Exception
+             if ($appEnvironment === Config::__DEV__) {
+                 throw new RouteNotFoundException("Route: ".$this->__request." cannot be matched !");
+             }
+             // Redirect to Not Found default page
+             else {
+                 // You can change this config with your own behavior
+                 return [
+                    "Controller" => "Error",
+                    "Action" => "RouteNotFound"
+                 ];
+             }           
+         }
     }
     
 }
