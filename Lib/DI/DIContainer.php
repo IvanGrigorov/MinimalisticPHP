@@ -8,6 +8,8 @@
 require_once (dirname(__FILE__)."\..\URLParser.php");
 require_once (dirname(__FILE__)."\..\RoutingMechanism.php");
 require_once (dirname(__FILE__)."\..\Repositories\ControllerRepository.php");
+require_once (dirname(__FILE__)."\..\GroundClasses\GroundView.php");
+
 
 
 
@@ -35,6 +37,14 @@ class DIContainer {
             DIContainer::getInstance()->$fieldName = new $class();
         }
         return DIContainer::getInstance()->$fieldName;
+    }
+    
+    public static function clearSingletonObject($class) {
+        $fieldName = "_".$class;
+        if (!isset(DIContainer::getInstance()->$fieldName)) {
+            DIContainer::getInstance()->$fieldName = null;
+            unset(DIContainer::getInstance()->$fieldName);
+        }
     }
     
     public static function returnValueType() {

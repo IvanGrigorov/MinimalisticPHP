@@ -6,6 +6,9 @@ require_once(dirname(__FILE__)."/../Config/RegexContract.php");
 require_once(dirname(__FILE__)."\DI\DIContract.php");
 require_once(dirname(__FILE__)."\..\Config\RequestTypesConfig.php");
 require_once(dirname(__FILE__)."\ExceptionHandlers\RouteNotFoundException.php");
+require_once(dirname(__FILE__)."\FilterManagement\FilterApplier.php");
+require_once(dirname(__FILE__)."\FilterManagement\FilterRegister.php");
+
 
 
 
@@ -69,9 +72,21 @@ class RoutingMechanism implements IRoutingMechanism {
 
     }
 
-    private function MatchQuery($query, $matchTarget, $defaultValues, $requestType) {
+    private function MatchQuery($query, $matchTarget, $defaultValues, $requestType, $filterArray) {
         if ($this->__queryType !== $requestType) {
             return false;
+        }
+        if ($filterArray) { 
+            foreach($filterArray as $key => $value) {
+               if (method_exists('FilterApplier', $key)) {
+                   if (FilterApplier::$key() !== $value) {
+                       return false;
+                   }
+               }
+               else {
+                   throw new Exception("Filter function ".$key. " does not exist in the FilterApplier class.");
+               }
+            }           
         }
         $urlConfig = [];
         $splitedQuery = $this->_urlParser->parseUrl($query);
@@ -181,8 +196,8 @@ class RoutingMechanism implements IRoutingMechanism {
          /*
           * Adding new routes with this if checks
           */
-         if ($this->MatchQuery($this->__request, "/Home/Index/{id}/{test?}", null, RequestTypesConfig::__GET)) { 
-            $routeConfig = $this->MatchQuery($this->__request, "/Home/Index/{id}/{test?}", null, $this->__queryType);
+         if ($this->MatchQuery($this->__request, "/Home/Index/{id}/{test?}", null, RequestTypesConfig::__GET, FilterRegister::__DOMAIN_FILTER__)) { 
+            $routeConfig = $this->MatchQuery($this->__request, "/Home/Index/{id}/{test?}", null, $this->__queryType,  FilterRegister::__DOMAIN_FILTER__);
             return $routeConfig;
          }
          
@@ -203,6 +218,21 @@ class RoutingMechanism implements IRoutingMechanism {
                  ];
              }           
          }
+    }
+    
+    public function apllyFilterForStaticFiles() {
+        $splitedQuery = $this->_urlParser->parseUrl($this->__request);
+        unset($splitedQuery[count($splitedQuery) - 1]);
+        unset($splitedQuery[0]);
+        $staticRoute = implode("/", $splitedQuery);
+        foreach (Config::__staticFolders as $route) {
+            if ($route === $staticRoute) {
+                return true;
+            }
+        }
+        return false;
+
+
     }
     
 }

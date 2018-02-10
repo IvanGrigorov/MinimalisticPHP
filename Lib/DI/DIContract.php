@@ -9,6 +9,7 @@
 require_once (dirname(__FILE__)."\..\Interfaces\IURLParser.php");
 require_once (dirname(__FILE__)."\..\Interfaces\IRoutingMechanism.php");
 require_once (dirname(__FILE__)."\..\Interfaces\IControllerRepository.php");
+require_once (dirname(__FILE__)."\..\Interfaces\IView.php");
 require_once (dirname(__FILE__)."\DIContainer.php");
 
 class DIContract {
@@ -38,6 +39,10 @@ class DIContract {
         ];
         DIContract::$self->mappedObject["_ControllerRepository"] = [
             "className" => "ControllerRepository",
+            "isSingleton" => true
+        ];
+        DIContract::$self->mappedObject["_View"] = [
+            "className" => "GroundView",
             "isSingleton" => true
         ];
             

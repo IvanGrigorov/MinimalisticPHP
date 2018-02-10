@@ -1,8 +1,8 @@
 <?php
 
 require_once(dirname(__FILE__)."\Lib\Interfaces\IRoutingMechanism.php");
-require_once(dirname(__FILE__)."\Lib\RoutingMechanism.php");
-require_once(dirname(__FILE__)."\Lib\URLParser.php");
+//require_once(dirname(__FILE__)."\Lib\RoutingMechanism.php");
+//require_once(dirname(__FILE__)."\Lib\URLParser.php");
 require_once(dirname(__FILE__)."\Lib\DI\DIContract.php");
 
 

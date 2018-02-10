@@ -8,15 +8,18 @@ require_once(dirname(__FILE__)."\Lib\ExceptionHandlers\RouteToControllerMappingE
 
 echo phpinfo();
 
+// Inject the app
 $app = new App();
 $routing = $app->getRoutingMechanism();
-$routeInfo = $routing->MatchRoute(Config::getEnv());
-try {
-    $app->actionInvocation($routeInfo);
+if (!$routing->apllyFilterForStaticFiles()) {
+    $routeInfo = $routing->MatchRoute(Config::getEnv());
+    try {
+        $app->actionInvocation($routeInfo);
 
-} catch (RouteToControllerMappingException $ex) {
-    // Redirect to static internal problem page
-    echo "Yes";
+    } catch (RouteToControllerMappingException $ex) {
+        // Redirect to static internal problem page
+        echo "Yes";
+    }
 }
 
 
