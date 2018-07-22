@@ -191,7 +191,7 @@ class RoutingMechanism implements IRoutingMechanism {
     public function MatchRoute($appEnvironment) {
          $parsedURL = $this ->_urlParser->parseUrl($this->__request);
          $controller = $parsedURL[0];
-         $method = $parsedURL[1];         
+         $method = $parsedURL[1];
 
          /*
           * Adding new routes with this if checks
